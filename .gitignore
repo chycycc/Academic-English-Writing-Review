@@ -1,0 +1,7 @@
+# Office 临时文件
+~$*.pptx
+~$*.docx
+~$*.xlsx
+
+# Obsidian 工作区文件
+.obsidian/workspace.json

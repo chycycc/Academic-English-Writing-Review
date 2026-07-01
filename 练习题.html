@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>学术写作练习 · 内联解析</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+    <style>
+        /* ===== 全局重置 & 基础 ===== */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        :root {
+            --bg: #f1f5f9;
+            --surface: #ffffff;
+            --surface-alt: #f8fafc;
+            --border: #e2e8f0;
+            --border-light: #eef2f6;
+            --primary: #1e4a7a;
+            --primary-light: #e8edf5;
+            --primary-dark: #0f2e4f;
+            --primary-soft: #d4e0f0;
+            --accent: #d97706;
+            --green: #0b8a4f;
+            --green-light: #e6f7ef;
+            --red: #b91c1c;
+            --red-light: #fde8e8;
+            --text: #0f172a;
+            --text2: #334155;
+            --text3: #64748b;
+            --text4: #94a3b8;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --radius-full: 9999px;
+            --transition: 0.2s ease;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 14px;
+            line-height: 1.6;
+            padding-bottom: 80px;
+        }
+
+        /* ===== 滚动条 ===== */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
+        }
+
+        /* ===== 顶部导航 ===== */
+        .top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-light);
+            box-shadow: var(--shadow-sm);
+        }
+        .nav-inner {
+            max-width: 1120px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.5rem 1.5rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .nav-inner::-webkit-scrollbar {
+            display: none;
+        }
+        .nav-logo {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--primary);
+            margin-right: 0.6rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .nav-logo span {
+            color: var(--accent);
+        }
+        .nav-link {
+            font-size: 0.72rem;
+            font-weight: 500;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 0.3rem 0.7rem;
+            border-radius: var(--radius-full);
+            white-space: nowrap;
+            transition: all var(--transition);
+        }
+        .nav-link:hover {
+            color: var(--primary);
+            background: var(--primary-light);
+        }
+        .nav-link.active {
+            color: #fff;
+            background: var(--primary);
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(30, 74, 122, 0.25);
+        }
+
+        /* ===== 容器 ===== */
+        .container {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* ===== 头部 ===== */
+        .header {
+            padding: 2rem 0 1.2rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+        .header-left h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--text);
+        }
+        .header-left h1 .hl {
+            color: var(--primary);
+        }
+        .header-left p {
+            color: var(--text2);
+            font-size: 0.85rem;
+            max-width: 500px;
+            margin-top: 0.1rem;
+        }
+        .header-stats {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+        .stat-pill {
+            background: var(--surface);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-full);
+            padding: 0.4rem 1rem 0.4rem 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text2);
+            box-shadow: var(--shadow-sm);
+            white-space: nowrap;
+        }
+        .stat-pill .num {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+        .stat-pill .num.green {
+            color: var(--green);
+        }
+        .stat-pill .num.red {
+            color: var(--red);
+        }
+        .stat-pill .num.primary {
+            color: var(--primary);
+        }
+        .stat-pill .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .dot.green {
+            background: var(--green);
+        }
+        .dot.red {
+            background: var(--red);
+        }
+        .dot.gray {
+            background: var(--text4);
+        }
+        .dot.primary {
+            background: var(--primary);
+        }
+
+        /* ===== 进度条 ===== */
+        .progress-ribbon {
+            background: var(--surface);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius);
+            padding: 0.6rem 1.2rem;
+            margin-bottom: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            box-shadow: var(--shadow-sm);
+            flex-wrap: wrap;
+        }
+        .progress-ribbon .label {
+            font-size: 0.72rem;
+            font-weight: 500;
+            color: var(--text3);
+            white-space: nowrap;
+        }
+        .progress-ribbon .track {
+            flex: 1;
+            min-width: 100px;
+            height: 5px;
+            background: var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-ribbon .track .fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 10px;
+            transition: width 0.4s ease;
+        }
+        .progress-ribbon .meta {
+            font-size: 0.72rem;
+            color: var(--text3);
+            white-space: nowrap;
+            font-weight: 500;
+        }
+        .progress-ribbon .meta strong {
+            color: var(--text);
+        }
+
+        /* ===== 章节 ===== */
+        .section {
+            margin-bottom: 2.4rem;
+        }
+        .section-header {
+            display: flex;
+            align-items: baseline;
+            gap: 0.6rem;
+            margin-bottom: 0.4rem;
+        }
+        .section-header .badge {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #fff;
+            background: var(--primary);
+            padding: 0.1rem 0.6rem;
+            border-radius: var(--radius-full);
+            letter-spacing: 0.04em;
+            flex-shrink: 0;
+        }
+        .section-header h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .section-desc {
+            font-size: 0.8rem;
+            color: var(--text2);
+            margin-bottom: 1rem;
+            padding-left: 0.2rem;
+            line-height: 1.7;
+        }
+        .section-desc b {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        /* ===== 卡片网格 ===== */
+        .card-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+        @media (max-width: 700px) {
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ===== 卡片 ===== */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius);
+            padding: 1.2rem 1.2rem 1rem;
+            box-shadow: var(--shadow-sm);
+            transition: border-color var(--transition), box-shadow var(--transition);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            height: fit-content;
+        }
+        .card:hover {
+            box-shadow: var(--shadow-md);
+        }
+        .card.ok {
+            border-color: var(--green);
+            background: #fafffd;
+        }
+        .card.no {
+            border-color: var(--red);
+            background: #fffafa;
+        }
+        .card.ok .card-num {
+            background: var(--green);
+            color: #fff;
+        }
+        .card.no .card-num {
+            background: var(--red);
+            color: #fff;
+        }
+
+        .card-top {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+        .card-num {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            color: var(--primary);
+            font-size: 0.7rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .card-sentence {
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: var(--text);
+            flex: 1;
+        }
+        .card-sentence .hi {
+            background: var(--primary-soft);
+            color: var(--primary-dark);
+            padding: 0.05em 0.3em;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .card-body {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+        .input-row label {
+            font-size: 0.7rem;
+            color: var(--text3);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .input-row input,
+        .card textarea {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.82rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 0.4rem 0.7rem;
+            color: var(--text);
+            background: var(--surface-alt);
+            transition: border-color var(--transition);
+            width: 100%;
+            max-width: 280px;
+        }
+        .card textarea {
+            max-width: 100%;
+            min-height: 48px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+        .input-row input:focus,
+        .card textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px var(--primary-light);
+        }
+
+        .opts {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+        .opt {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 500;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 0.3rem 0.9rem;
+            background: var(--surface-alt);
+            color: var(--text2);
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+        .opt:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .opt.picked {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.2rem;
+        }
+        .btn {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.72rem;
+            font-weight: 600;
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 0.35rem 1rem;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            box-shadow: 0 2px 8px rgba(30, 74, 122, 0.25);
+        }
+        .btn-primary:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text3);
+        }
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .feedback {
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .feedback.show {
+            opacity: 1;
+        }
+        .feedback.ok {
+            color: var(--green);
+        }
+        .feedback.no {
+            color: var(--red);
+        }
+
+        /* ===== 内联解析盒子 ===== */
+        .answer-box {
+            display: none;
+            margin-top: 0.6rem;
+            padding: 0.75rem 1rem;
+            background: var(--primary-light);
+            border-radius: var(--radius-sm);
+            border-left: 4px solid var(--primary);
+            font-size: 0.82rem;
+            line-height: 1.6;
+            transition: all 0.2s ease;
+        }
+        .answer-box.show {
+            display: block;
+        }
+        .answer-box .ans-status {
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+        }
+        .answer-box .ans-status.correct {
+            color: var(--green);
+        }
+        .answer-box .ans-status.wrong {
+            color: var(--red);
+        }
+        .answer-box .ans-correct {
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 0.2rem;
+        }
+        .answer-box .ans-explain {
+            color: var(--text2);
+        }
+        .answer-box .ans-explain strong {
+            color: var(--text);
+        }
+
+        /* ===== 重置按钮 ===== */
+        .reset-wrap {
+            margin-top: 1rem;
+            text-align: center;
+        }
+        .btn-reset {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 500;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-full);
+            padding: 0.4rem 1.2rem;
+            color: var(--text3);
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+        .btn-reset:hover {
+            border-color: var(--red);
+            color: var(--red);
+        }
+
+        .footer {
+            margin-top: 2.5rem;
+            text-align: center;
+            font-size: 0.7rem;
+            color: var(--text4);
+            border-top: 1px solid var(--border-light);
+            padding-top: 1.2rem;
+        }
+
+        @media (max-width: 600px) {
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .header-stats {
+                justify-content: flex-start;
+            }
+            .progress-ribbon {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.5rem;
+            }
+            .card {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== 导航 ===== -->
+    <nav class="top-nav">
+        <div class="nav-inner">
+            <span class="nav-logo">AW<span>练习</span></span>
+            <a href="#ex1" class="nav-link active">Ex 1</a>
+            <a href="#ex2" class="nav-link">Ex 2</a>
+            <a href="#ex3" class="nav-link">Ex 3</a>
+            <a href="#ex4" class="nav-link">Ex 4</a>
+            <a href="#ex5" class="nav-link">Ex 5</a>
+            <a href="#ex6" class="nav-link">Ex 6</a>
+            <a href="#ex7" class="nav-link">Ex 7</a>
+            <a href="#ex8" class="nav-link">Ex 8</a>
+            <a href="#ex9" class="nav-link">Ex 9</a>
+        </div>
+    </nav>
+
+    <!-- ===== 头部 ===== -->
+    <div class="container">
+        <header class="header">
+            <div class="header-left">
+                <h1>学术写作 <span class="hl">9 大模块</span></h1>
+                <p>短语动词 · 正式语体 · 弱化人称 · 谨慎表述 · 内联解析</p>
+            </div>
+            <div class="header-stats">
+                <span class="stat-pill"><span class="dot primary"></span> 总题 <span class="num primary" id="totalQ">0</span></span>
+                <span class="stat-pill"><span class="dot green"></span> 正确 <span class="num green" id="correctQ">0</span></span>
+                <span class="stat-pill"><span class="dot red"></span> 错误 <span class="num red" id="wrongQ">0</span></span>
+                <span class="stat-pill"><span class="dot gray"></span> 剩余 <span class="num" id="remainQ">0</span></span>
+            </div>
+        </header>
+
+        <!-- ===== 进度条 ===== -->
+        <div class="progress-ribbon">
+            <span class="label">进度</span>
+            <div class="track"><div class="fill" id="progressFill"></div></div>
+            <span class="meta"><strong id="doneCount">0</strong> / <span id="totalCount">0</span> 已完成</span>
+            <button class="btn-reset" onclick="resetAll()">重置所有</button>
+        </div>
+    </div>
+
+    <!-- ===== 主内容 ===== -->
+    <div class="container">
+
+        <!-- ===== 练习 1 ===== -->
+        <section class="section" id="ex1">
+            <div class="section-header"><span class="badge">01</span><h2>短语动词 → 正式动词</h2></div>
+            <p class="section-desc">从下方选择合适动词替换划线短语，保持时态一致：<b>fluctuate, investigate, eliminate, raise, reduce, propose, intervene, establish</b></p>
+            <div class="card-grid" id="ex1Grid"></div>
+        </section>
+
+        <!-- ===== 练习 2 ===== -->
+        <section class="section" id="ex2">
+            <div class="section-header"><span class="badge">02</span><h2>短语动词 → 正式单个动词</h2></div>
+            <p class="section-desc">将短语动词替换为单个正式动词。</p>
+            <div class="card-grid" id="ex2Grid"></div>
+        </section>
+
+        <!-- ===== 练习 3 ===== -->
+        <section class="section" id="ex3">
+            <div class="section-header"><span class="badge">03</span><h2>学术语体选词</h2></div>
+            <p class="section-desc">选择更适合学术写作的选项。</p>
+            <div class="card-grid" id="ex3Grid"></div>
+        </section>
+
+        <!-- ===== 练习 4 ===== -->
+        <section class="section" id="ex4">
+            <div class="section-header"><span class="badge">04</span><h2>口语 → 正式表述</h2></div>
+            <p class="section-desc">用更正式的单词或短语替换加粗部分。</p>
+            <div class="card-grid" id="ex4Grid"></div>
+        </section>
+
+        <!-- ===== 练习 5 ===== -->
+        <section class="section" id="ex5">
+            <div class="section-header"><span class="badge">05</span><h2>展开缩约形式</h2></div>
+            <p class="section-desc">将缩约形式（如 <b>weren't</b>）展开为完整形式。</p>
+            <div class="card-grid" id="ex5Grid"></div>
+        </section>
+
+        <!-- ===== 练习 6 ===== -->
+        <section class="section" id="ex6">
+            <div class="section-header"><span class="badge">06</span><h2>去除 “you” 与 “we”</h2></div>
+            <p class="section-desc">改写句子，避免使用 <b>you</b> 和 <b>we</b>，多用被动语态和无人称结构。</p>
+            <div class="card-grid" id="ex6Grid"></div>
+        </section>
+
+        <!-- ===== 练习 7 ===== -->
+        <section class="section" id="ex7">
+            <div class="section-header"><span class="badge">07</span><h2>去除个人化语言</h2></div>
+            <p class="section-desc">用客观、非人称的学术结构替换 <b>I</b>、<b>my</b>、<b>we</b> 等。</p>
+            <div class="card-grid" id="ex7Grid"></div>
+        </section>
+
+        <!-- ===== 练习 8 ===== -->
+        <section class="section" id="ex8">
+            <div class="section-header"><span class="badge">08</span><h2>谨慎表述（Hedging）</h2></div>
+            <p class="section-desc">使用 <b>may, might, tend to, most, many</b> 等弱化绝对语气。</p>
+            <div class="card-grid" id="ex8Grid"></div>
+        </section>
+
+        <!-- ===== 练习 9 ===== -->
+        <section class="section" id="ex9">
+            <div class="section-header"><span class="badge">09</span><h2>正式语体改写</h2></div>
+            <p class="section-desc">将句子改写为更正式的学术风格。</p>
+            <div class="card-grid" id="ex9Grid"></div>
+        </section>
+
+        <div class="reset-wrap">
+            <button class="btn-reset" onclick="resetAll()">🔄 重置所有进度</button>
+        </div>
+        <footer class="footer">学术写作练习 · 9 大模块 · 共 <span id="footerTotal">0</span> 题 · 内联解析</footer>
+    </div>
+
+    <script>
+        // ============================
+        // 数据（来自您的文档）
+        // ============================
+        const exercises = [{
+            id: 'ex1',
+            items: [
+                { sentence: 'Researchers have been <span class="hi">looking into</span> the problem for 15 years.',
+                    answer: 'investigating', explain: 'look into 是口语化的 “调查、研究”，学术写作中用 investigate 更正式。本句为现在完成进行时，故用 investigating。' },
+                { sentence: 'This issue was <span class="hi">brought up</span> during the seminar.', answer: 'raised',
+                    explain: 'bring up 表示 “提出（议题）”，学术中常用 raise 替代；本句为被动语态，故用过去分词 raised。' },
+                { sentence: 'It is assumed that the management knows what is happening and will therefore <span class="hi">step in</span> if there is a problem.',
+                    answer: 'intervene', explain: 'step in 是口语 “介入”，描述管理层干预行为，intervene 是正式标准用词。' },
+                { sentence: 'Schools cannot altogether <span class="hi">get rid of</span> the problem of truancy.',
+                    answer: 'eliminate', explain: 'get rid of 是日常 “摆脱”，学术中表示 “根除、消除问题” 用 eliminate 更严谨正式。' },
+                { sentence: 'The number of staff has been <span class="hi">cut down</span> recently.', answer: 'reduced',
+                    explain: 'cut down 表示 “削减”，学术中描述人员减少常用 reduce；本句为现在完成时被动，故用 reduced。' },
+                { sentence: 'It was very difficult to <span class="hi">find out</span> exactly what happened.', answer: 'establish',
+                    explain: 'find out 是日常 “查明”，establish 在学术中有 “探明、证实事实” 的含义，符合本句语境。' },
+                { sentence: 'House prices have a tendency to <span class="hi">go up and down</span>.', answer: 'fluctuate',
+                    explain: 'go up and down 是口语 “上下波动”，描述价格波动的学术标准术语是 fluctuate。' },
+                { sentence: 'A potential solution was <span class="hi">put forward</span> two years ago.', answer: 'proposed',
+                    explain: 'put forward 表示 “提出方案”，学术中 propose 是正式固定用法；本句为被动语态，故用 proposed。' }
+            ]
+        }, {
+            id: 'ex2',
+            items: [
+                { sentence: 'The locals could not <span class="hi">put up with</span> the visitors from the city.',
+                    answer: 'tolerate', explain: 'put up with 是口语 “忍受”，正式语体中用 tolerate 表达 “容忍” 更规范。' },
+                { sentence: 'The decline was <span class="hi">brought about</span> by cheap imports.', answer: 'caused',
+                    explain: 'bring about 表示 “导致”，学术中描述因果关系常用 cause，被动语态 caused 符合客观表述。' },
+                { sentence: 'The university is <span class="hi">thinking about</span> installing CCTV.', answer: 'considering',
+                    explain: 'think about 是日常 “考虑”，机构的规划考量在正式语境中用 considering。' },
+                { sentence: 'Sales are likely to <span class="hi">drop off</span> in the third quarter.', answer: 'decline',
+                    explain: 'drop off 是口语 “下降”，描述销量数据下降学术常用 decline。' },
+                { sentence: 'He <span class="hi">went on</span> speaking for over an hour.', answer: 'continued',
+                    explain: 'go on doing 是日常 “继续做某事”，正式书面语用 continued。' },
+                { sentence: 'The meeting was <span class="hi">put off</span> until December.', answer: 'postponed',
+                    explain: 'put off 是口语 “推迟”，正式场合表示会议延期的标准用词是 postponed。' },
+                { sentence: 'The cinema was <span class="hi">pulled down</span> ten years ago.', answer: 'demolished',
+                    explain: 'pull down 表示 “拆除建筑”，工程/正式语境的标准术语是 demolished。' },
+                { sentence: 'People have <span class="hi">cut down on</span> their consumption of beef.', answer: 'reduced',
+                    explain: 'cut down on 是日常 “削减用量”，学术中表示减少消费用 reduced。' }
+            ]
+        }, {
+            id: 'ex3',
+            items: [{
+                sentence: 'The government has made <span class="hi">considerable / great</span> progress in solving the problem.',
+                answer: 'considerable', explain: 'great 偏主观口语化，considerable 表示 “显著的”，是学术中描述程度的客观正式用词。',
+                type: 'choice', choices: ['considerable', 'great']
+            }, {
+                sentence: 'We <span class="hi">got / obtained</span> excellent results in the experiment.', answer: 'obtained',
+                explain: 'got 是非常口语化的 “得到”，学术中 obtain 是标准正式动词。', type: 'choice', choices: ['got', 'obtained']
+            }, {
+                sentence: 'The results of <span class="hi">lots of / numerous</span> tests have been <span class="hi">pretty good / encouraging</span>.',
+                answer: 'numerous,encouraging', explain: 'lots of → numerous（正式的 “大量的”）；pretty good → encouraging（标准学术表述）。',
+                type: 'multi-choice', choiceGroups: [
+                    ['lots of', 'numerous'],
+                    ['pretty good', 'encouraging']
+                ]
+            }, {
+                sentence: 'A loss of jobs is one of the <span class="hi">consequences / things that will happen</span> if the process is automated.',
+                answer: 'consequences', explain: 'things that will happen 模糊口语化，consequences 精准正式，符合学术写作准确性要求。',
+                type: 'choice', choices: ['consequences', 'things that will happen']
+            }, {
+                sentence: 'The relationship between the management and workers is <span class="hi">extremely / really</span> important.',
+                answer: 'extremely', explain: 'really 偏口语化，extremely 是更正式的程度副词，适合书面学术语体。', type: 'choice',
+                choices: ['extremely', 'really']
+            }, {
+                sentence: 'Some suggestions <span class="hi">springing up from / arising from</span> the study will be presented.',
+                answer: 'arising from', explain: 'spring up from 偏口语；arise from 表示 “由…产生”，是学术中描述因果关系的固定正式搭配。',
+                type: 'choice', choices: ['arising from', 'springing up from']
+            }]
+        }, {
+            id: 'ex4',
+            items: [
+                { sentence: 'The reaction of the officials was <span class="hi">sort of</span> negative.', answer: 'somewhat',
+                    explain: 'sort of 是非常口语化的 “有点儿”，学术中描述程度用 somewhat 更正式客观。' },
+                { sentence: 'The economic outlook is <span class="hi">nice</span>.', answer: 'favourable',
+                    explain: 'nice 是模糊的口语夸赞，描述经济前景用 favourable（向好的）更精准正式。' },
+                { sentence: 'Car manufacturers are planning a <span class="hi">get together</span> to discuss their strategy.',
+                    answer: 'meeting', alt: 'conference', explain: 'get together 是口语 “聚会”，正式磋商场景用 meeting 或 conference。' },
+                { sentence: 'The resulting competition between countries is <span class="hi">good</span>.', answer: 'beneficial',
+                    explain: 'good 是模糊的口语表达，描述竞争的正向作用用 beneficial（有益的）更准确严谨。' },
+                { sentence: 'The economy is affected by <span class="hi">things that happen</span> outside the country.',
+                    answer: 'external factors', explain: 'things that happen 模糊口语化，学术中描述外部影响用 external factors 是标准表述。' },
+                { sentence: 'She was <span class="hi">given the sack</span> because of her poor record.', answer: 'dismissed',
+                    explain: 'given the sack 是非常口语化的 “被解雇”，正式书面语境用 dismissed。' },
+                { sentence: 'The examination results were <span class="hi">super</span>.', answer: 'excellent',
+                    explain: 'super 是口语化感叹，描述成绩结果用 excellent 更正式客观。' }
+            ]
+        }, {
+            id: 'ex5',
+            items: [
+                { sentence: 'The results <span class="hi">weren\'t</span> very encouraging.', answer: 'were not',
+                    explain: 'weren\'t → were not。学术写作禁止使用缩约形式。' },
+                { sentence: '<span class="hi">We\'ll</span> have to conduct another experiment.', answer: 'We will',
+                    explain: 'We\'ll → We will。' },
+                { sentence: '<span class="hi">She\'s</span> been all around the world.', answer: 'She has',
+                    explain: 'She\'s → She has（此处为 has 的缩约）。' },
+                { sentence: '<span class="hi">It\'s</span> the best solution to the problem.', answer: 'It is',
+                    explain: 'It\'s → It is。' },
+                { sentence: 'Our questionnaire shows that teachers <span class="hi">aren\'t</span> paid what <span class="hi">they\'re</span> worth.',
+                    answer: 'are not, they are', explain: 'aren\'t → are not；they\'re → they are。两个缩约形式都需展开。',
+                    multi: true },
+                { sentence: 'His response was, "A <span class="hi">job\'s</span> a job; if it <span class="hi">doesn\'t</span> pay enough, <span class="hi">it\'s</span> a lousy job."',
+                    answer: 'job is, does not, it is', explain: 'job\'s → job is；doesn\'t → does not；it\'s → it is。三个缩约形式都需展开。',
+                    multi: true },
+                { sentence: '<span class="hi">He\'d</span> rather announce the findings at the conference.', answer: 'He would',
+                    explain: 'He\'d → He would（此处为 would 的缩约）。' },
+                { sentence: 'The department\'s approach <span class="hi">didn\'t</span> succeed.', answer: 'did not',
+                    explain: 'didn\'t → did not。' }
+            ]
+        }, {
+            id: 'ex6',
+            items: [
+                { sentence: 'You can apply the same theory of learning to small children.',
+                    answer: 'The same theory of learning can be applied to small children.',
+                    explain: '改为被动语态，去掉第二人称 you，突出理论本身。', free: true },
+                { sentence: 'You can only do this after the initial preparation has been conducted.',
+                    answer: 'This can only be done after the initial preparation has been conducted.',
+                    explain: '将主动的 you do this 改为被动结构，消除第二人称。', free: true },
+                { sentence: 'The figures are accurate to within 1%, but you should note that local variations may apply.',
+                    answer: 'The figures are accurate to within 1%, but it should be noted that local variations may apply.',
+                    explain: '用 it should be noted that 正式无人称结构替代 you should note。', free: true },
+                { sentence: 'In the second section of the report, we will consider the environmental consequences.',
+                    answer: 'The second section of the report considers the environmental consequences.',
+                    explain: '去掉第一人称 we，以 “报告章节” 作主语，突出文本内容而非作者。', free: true }
+            ]
+        }, {
+            id: 'ex7',
+            items: [
+                { sentence: 'In this essay I will discuss the main differences between the English and Scottish legal systems.',
+                    answer: 'This essay discusses the main differences between the English and Scottish legal systems.',
+                    explain: '以 essay 作主语替代 I，突出文本本身，符合学术客观视角。', free: true },
+                { sentence: 'I have divided my report into five sections.',
+                    answer: 'The report is divided into five sections.',
+                    explain: '使用被动语态，去掉第一人称 I/my，客观陈述报告结构。', free: true },
+                { sentence: 'I will conclude by proposing that all drugs should be legalized.',
+                    answer: 'It is concluded that all drugs should be legalized.',
+                    explain: '用无人称结论句式替代 I will conclude，弱化个人视角。', free: true },
+                { sentence: 'My opinion of this essay is that the importance of the monarchy should be reduced.',
+                    answer: 'This essay argues that the importance of the monarchy should be reduced.',
+                    explain: '去掉 my opinion 主观表述，用 argue 学术常用动词，将观点归于文本而非个人。', free: true },
+                { sentence: 'In the third part of the essay, we will look at the reasons for public hysteria over the SARS virus.',
+                    answer: 'The third part of the essay examines the reasons for public hysteria over the SARS virus.',
+                    explain: '去掉第一人称 we，以章节作主语，用正式动词 examine 替代口语化的 look at。', free: true },
+                { sentence: 'Although I am not an expert in the field, I have tried very hard to understand the main ideas.',
+                    answer: 'This paper attempts to understand the main ideas of the field.',
+                    explain: '直接删掉前半句的废话。把主语 “I” 换成 “This paper” (本文)，把 “have tried very hard to” 换成中立的 “attempts to” (尝试去)', free: true }
+            ]
+        }, {
+            id: 'ex8',
+            items: [
+                { sentence: 'Today everyone uses credit cards for all their shopping.',
+                    answer: 'Today most people use credit cards for much of their shopping.',
+                    explain: 'everyone / all 是绝对化表述，改为 most / much 限定范围。', free: true },
+                { sentence: 'Drinking wine is bad for you.',
+                    answer: "Drinking wine may have adverse effects on one's health.",
+                    explain: '用 may 弱化判断的必然性。', free: true },
+                { sentence: 'Global warming will have disastrous consequences for the whole world.',
+                    answer: 'Global warming might have disastrous consequences for most of the world.',
+                    explain: '把绝对的预测 will 改成 might（或许）；把绝对的范围 the whole（整个）缩减成 most of（大多数）。', free: true },
+                { sentence: 'Teleworking leads to isolation.',
+                    answer: 'Teleworking may lead to isolation.',
+                    explain: '直接在动词前加 may（可能），打破“一定会导致”的绝对语气。', free: true },
+                { sentence: 'Women are worse drivers than men.',
+                    answer: 'Male drivers tend to be involved in more severe accidents than female drivers.',
+                    explain: '陈述客观事实，并用 tend to（往往会/倾向于）替代绝对的 are，使句式符合学术客观风格。', free: true }
+            ]
+        }, {
+            id: 'ex9',
+            items: [
+                { sentence: 'The positive feedback <span class="hi">made up for</span> the problems <span class="hi">we came across</span> during the trials.',
+                    answer: 'The positive feedback compensated for the problems encountered during the trials.',
+                    explain: 'made up for → compensated for；came across → encountered；去掉第一人称 we。', free: true },
+                { sentence: '<span class="hi">You can clearly see</span> the differences between these two learning processes.',
+                    answer: 'Clear differences can be observed between these two learning processes.',
+                    explain: '去掉第二人称 you；clearly see → be observed，符合学术客观表述。', free: true },
+                { sentence: 'The subjects <span class="hi">didn\'t have much difficulty</span> with the task.',
+                    answer: 'The subjects did not experience significant difficulty with the task.',
+                    explain: '缩写改为完整形式；have much difficulty → experience significant difficulty，更正式精准。', free: true },
+                { sentence: '<span class="hi">We found example after example</span> of autonomous systems in <span class="hi">lots of</span> countries.',
+                    answer: 'Numerous examples of autonomous systems were found in many countries.',
+                    explain: '去掉第一人称 we，改为被动语态；example after example → numerous examples；lots of → many。',
+                    free: true }
+            ]
+        }];
+
+        // ============================
+        // 渲染逻辑
+        // ============================
+        let allCards = [];
+        let doneSet = new Set();
+        let stats = { correct: 0, wrong: 0 };
+
+        function buildCards() {
+            exercises.forEach((ex) => {
+                const grid = document.getElementById(ex.id + 'Grid');
+                if (!grid) return;
+                grid.innerHTML = '';
+                ex.items.forEach((item, i) => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.dataset.answer = item.answer;
+                    if (item.alt) card.dataset.alt = item.alt;
+                    card.dataset.explain = item.explain;
+                    if (item.multi) card.dataset.multi = 'true';
+
+                    let bodyHTML = '';
+                    if (item.type === 'choice') {
+                        bodyHTML =
+                            `<div class="opts">${item.choices.map(c => `<button class="opt" data-v="${c}" onclick="pick(this)">${c}</button>`).join('')}</div>`;
+                    } else if (item.type === 'multi-choice') {
+                        bodyHTML = item.choiceGroups.map((group, gi) => {
+                            return `<div style="margin-bottom:0.2rem;font-size:0.7rem;color:var(--text3);">第 ${gi+1} 空：</div>
+                                    <div class="opts">${group.map(c => `<button class="opt" data-v="${c}" data-g="${gi}" onclick="pick(this)">${c}</button>`).join('')}</div>`;
+                        }).join('');
+                    } else if (item.free) {
+                        bodyHTML = `<textarea placeholder="改写..." data-i></textarea>`;
+                    } else if (item.multi) {
+                        bodyHTML =
+                            `<div class="input-row"><label>完整形式：</label><input type="text" placeholder="用逗号分隔" data-i></div>`;
+                    } else {
+                        bodyHTML = `<div class="input-row"><label>答案：</label><input type="text" placeholder="输入" data-i></div>`;
+                    }
+
+                    // 内联解析盒子
+                    const answerBoxHTML = `
+                                <div class="answer-box">
+                                    <div class="ans-status"></div>
+                                    <div class="ans-correct"></div>
+                                    <div class="ans-explain"></div>
+                                </div>
+                            `;
+
+                    const actions = `
+                                <div class="actions">
+                                    <button class="btn btn-primary" onclick="checkCard(this)">检查</button>
+                                    <button class="btn btn-outline" onclick="toggleExplain(this)">查看解析</button>
+                                    <span class="feedback"></span>
+                                </div>
+                            `;
+
+                    card.innerHTML = `
+                                <div class="card-top">
+                                    <span class="card-num">${i+1}</span>
+                                    <div class="card-sentence">${item.sentence}</div>
+                                </div>
+                                <div class="card-body">
+                                    ${bodyHTML}
+                                    ${actions}
+                                    ${answerBoxHTML}
+                                </div>
+                            `;
+                    grid.appendChild(card);
+                    allCards.push(card);
+                });
+            });
+            document.getElementById('totalQ').textContent = allCards.length;
+            document.getElementById('totalCount').textContent = allCards.length;
+            document.getElementById('footerTotal').textContent = allCards.length;
+            updateStats();
+        }
+
+        // ============================
+        // 交互函数
+        // ============================
+        function pick(btn) {
+            const parent = btn.closest('.opts');
+            if (!parent) return;
+            const group = btn.dataset.g;
+            if (group !== undefined) {
+                parent.querySelectorAll('.opt[data-g="' + group + '"]').forEach(b => b.classList.remove('picked'));
+            } else {
+                parent.querySelectorAll('.opt').forEach(b => b.classList.remove('picked'));
+            }
+            btn.classList.add('picked');
+        }
+
+        function checkCard(btn) {
+            const card = btn.closest('.card');
+            if (doneSet.has(card)) return;
+
+            const type = detectCardType(card);
+            let ok = false;
+            let userAnswer = '';
+
+            if (type === 'choice') {
+                const selected = card.querySelector('.opt.picked');
+                if (!selected) { alert('请先选择一个选项'); return; }
+                userAnswer = selected.dataset.v;
+                ok = userAnswer.toLowerCase() === card.dataset.answer.toLowerCase();
+            } else if (type === 'multi-choice') {
+                const groups = card.querySelectorAll('.opts');
+                const selected = [];
+                let allSelected = true;
+                groups.forEach(g => {
+                    const picked = g.querySelector('.opt.picked');
+                    if (picked) selected.push(picked.dataset.v);
+                    else allSelected = false;
+                });
+                if (!allSelected || selected.length < groups.length) { alert('请为每个空选择一个选项'); return; }
+                userAnswer = selected.join(',');
+                const expected = card.dataset.answer.toLowerCase().split(',').map(s => s.trim());
+                ok = selected.length === expected.length && selected.every((v, i) => v.toLowerCase() === expected[i]);
+            } else if (type === 'free') {
+                const textarea = card.querySelector('textarea');
+                if (!textarea || !textarea.value.trim()) { alert('请先输入你的改写'); return; }
+                userAnswer = textarea.value.trim();
+                const expected = card.dataset.answer.toLowerCase();
+                const words = expected.replace(/[^a-z\s]/g, '').split(/\s+/).filter(w => w.length > 3);
+                let matchCount = 0;
+                const lower = userAnswer.toLowerCase();
+                words.forEach(w => { if (lower.includes(w)) matchCount++; });
+                ok = matchCount / words.length >= 0.6;
+            } else {
+                const input = card.querySelector('[data-i]');
+                if (!input || !input.value.trim()) { alert('请先输入答案'); return; }
+                userAnswer = input.value.trim();
+                const expected = card.dataset.answer.toLowerCase();
+                const alt = card.dataset.alt ? card.dataset.alt.toLowerCase() : null;
+                ok = userAnswer.toLowerCase() === expected || (alt && userAnswer.toLowerCase() === alt);
+            }
+
+            markCard(card, ok);
+            showInlineExplanation(card, ok, userAnswer);
+        }
+
+        function toggleExplain(btn) {
+            const card = btn.closest('.card');
+            const box = card.querySelector('.answer-box');
+            // 如果已经展开则收起，否则展开（并填充数据）
+            if (box.classList.contains('show')) {
+                box.classList.remove('show');
+            } else {
+                // 如果还没有填充内容，填充一下
+                if (!box.querySelector('.ans-status').textContent) {
+                    const explain = card.dataset.explain;
+                    const answer = card.dataset.answer;
+                    box.querySelector('.ans-correct').textContent = `📌 正确答案：${answer}`;
+                    box.querySelector('.ans-explain').textContent = explain;
+                    box.querySelector('.ans-status').textContent = '💡 解析';
+                    box.querySelector('.ans-status').className = 'ans-status';
+                }
+                box.classList.add('show');
+            }
+        }
+
+        function markCard(card, ok) {
+            if (doneSet.has(card)) return;
+            doneSet.add(card);
+            const fb = card.querySelector('.feedback');
+            if (ok) {
+                stats.correct++;
+                card.classList.add('ok');
+                fb.textContent = '✓ 正确';
+                fb.className = 'feedback show ok';
+            } else {
+                stats.wrong++;
+                card.classList.add('no');
+                fb.textContent = '✗ 错误';
+                fb.className = 'feedback show no';
+            }
+            updateStats();
+        }
+
+        function detectCardType(card) {
+            if (card.querySelector('.opts')) {
+                const groups = card.querySelectorAll('.opts');
+                if (groups.length > 1) return 'multi-choice';
+                return 'choice';
+            }
+            if (card.querySelector('textarea')) return 'free';
+            return 'input';
+        }
+
+        // ============================
+        // 内联解析显示
+        // ============================
+        function showInlineExplanation(card, ok, userAnswer) {
+            const box = card.querySelector('.answer-box');
+            const status = box.querySelector('.ans-status');
+            const correct = box.querySelector('.ans-correct');
+            const explain = box.querySelector('.ans-explain');
+
+            const expected = card.dataset.answer;
+            const explainText = card.dataset.explain;
+
+            if (ok) {
+                status.textContent = '✅ 回答正确！';
+                status.className = 'ans-status correct';
+                correct.textContent = `正确答案：${expected}`;
+            } else {
+                status.textContent = `❌ 回答错误 (你的答案：${userAnswer || '未填写'})`;
+                status.className = 'ans-status wrong';
+                correct.textContent = `正确答案：${expected}`;
+            }
+            explain.textContent = explainText;
+            box.classList.add('show');
+        }
+
+        // ============================
+        // 统计与进度
+        // ============================
+        function updateStats() {
+            const total = allCards.length;
+            const done = doneSet.size;
+            const remain = total - done;
+            document.getElementById('correctQ').textContent = stats.correct;
+            document.getElementById('wrongQ').textContent = stats.wrong;
+            document.getElementById('remainQ').textContent = remain;
+            document.getElementById('doneCount').textContent = done;
+            document.getElementById('progressFill').style.width = ((done / total) * 100) + '%';
+        }
+
+        // ============================
+        // 重置
+        // ============================
+        function resetAll() {
+            if (!confirm('重置所有进度？')) return;
+            doneSet.clear();
+            stats.correct = 0;
+            stats.wrong = 0;
+            allCards.forEach(card => {
+                card.classList.remove('ok', 'no');
+                const fb = card.querySelector('.feedback');
+                if (fb) { fb.className = 'feedback';
+                    fb.textContent = ''; }
+                const input = card.querySelector('[data-i]');
+                if (input) { input.value = '';
+                    input.style.borderColor = ''; }
+                const textarea = card.querySelector('textarea');
+                if (textarea) { textarea.value = '';
+                    textarea.style.borderColor = ''; }
+                card.querySelectorAll('.opt').forEach(b => b.classList.remove('picked'));
+                const box = card.querySelector('.answer-box');
+                if (box) {
+                    box.classList.remove('show');
+                    box.querySelector('.ans-status').textContent = '';
+                    box.querySelector('.ans-correct').textContent = '';
+                    box.querySelector('.ans-explain').textContent = '';
+                }
+            });
+            updateStats();
+        }
+
+        // ============================
+        // 初始化
+        // ============================
+        buildCards();
+
+        // 导航高亮
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('.section');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.id;
+                    navLinks.forEach(link => {
+                        link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+                    });
+                }
+            });
+        }, { threshold: 0.3 });
+        sections.forEach(s => observer.observe(s));
+    </script>
+
+</body>
+</html>
